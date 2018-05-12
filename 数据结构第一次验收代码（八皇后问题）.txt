@@ -1,0 +1,132 @@
+// ConsoleApplication1.cpp: 定义控制台应用程序的入口点。
+//老师，这个代码自己写的，所以很蠢很长，但真的没有问度娘
+
+#include "stdafx.h"
+#include<iostream>
+using namespace std;
+int count = 0;//find（）函数回溯到第一排皇后的次数
+int sum = 0;//可行的方案数
+class quenestack//定义一个类
+{
+public:
+	quenestack()//构造函数，初始化棋盘，将每个位置都设为0，棋子的个数设为零
+	{
+		for (int i(0); i < 8; i++)
+			for (int j(0); j < 8; j++)
+				quene[i][j] = 0;
+		scale = 0;
+	};
+	void print();//打印棋盘，有棋子的地方设为1,
+	bool check(int m, int n);//检查一个位置是否可以放子
+	int push();//相当于工作函数
+	void find();//在同一排中找到下一个放子的地方，如果找不到，scale--，再次调用find（）函数
+private:
+	int quene[8][8];//构造8*8的棋盘
+	int scale;//棋盘上皇后的个数
+};
+
+int main()
+{
+	quenestack a;
+	a.push();
+    return 0;
+}
+
+
+void quenestack::print()
+{
+	for (int i(0); i < 8; i++)
+	{
+		for (int j(0); j < 8; j++)
+			cout << quene[i][j] << " ";
+		cout << endl;
+	}
+}
+bool quenestack::check(int m, int n)//分别判断横列，左上，左下，右上，右下是否可行
+{
+	
+	for (int i(0); i < 8; i++)
+		if (quene[m][i] == 1 || quene[i][n]) {  return false; }
+
+	for (int i(0); m - i >= 0 && n - i >= 0; i++)
+		if (quene[m - i][n - i] == 1) {  return false; }
+
+	for (int i(0); m + i<8 && n + i<8; i++)
+		if (quene[m + i][n + i] == 1) { return false; }
+
+	for (int i(0); m - i >= 0 && n + i<8; i++)
+		if (quene[m - i][n + i] == 1) { return false; }
+
+	for (int i(0); m + i < 8 && n - i >= 0; i++)
+		if (quene[m + i][n - i] == 1) { return false; }
+
+	return true;
+}
+int quenestack::push()
+{
+	while (1)
+	{
+		if (::count == 8)//如果回溯到第一排皇后的次数达到八次，跳出循环
+		{
+			cout << endl << sum;
+			exit(1);
+		};
+		for (int i = scale; i < 8; i++)
+		{
+			int j(0);
+			for (; j < 8; j++)
+			{
+				if (check(i, j))//该位置是否可以放子，如果可以，该点置为1，同时scale加1
+				{
+					quene[i][j] = 1;
+					scale++;
+					break;
+				}
+
+			}
+			if (j == 8)//如果遍历整排都找不到合适的位置放皇后，调用find（）函数，改变上一个皇后的位置
+			{
+				find();
+				break;
+			}
+		}
+		if (scale == 8)//如果放满8个皇后，打印，再次调用find()函数
+		{
+			print();
+			sum++;
+			cout << endl;
+			find();
+		}
+	}
+	return 0;
+}
+void quenestack::find()
+{
+	int j(0);
+	for (; j < 8; j++)//寻找最后一个皇后的位置，将其置空
+	{
+		if (quene[scale - 1][j] == 1)
+		{
+			quene[scale - 1][j] = 0; scale--; break;
+		}
+	}
+	
+	j++;//到下一个位置去
+	for (; j < 8; j++)//（列）检查之后的位置是否可以放皇后，如果可以，修改值为1，
+	{
+		if (check(scale, j))
+		{
+			quene[scale][j] = 1;
+			scale++; break;
+		}
+	}
+	if (j == 8)//不可以(之后的位置没有可以放皇后的位置),再次调用find()函数（即对上一个棋子操作
+	{
+
+		if (scale == 1)
+		{
+			::count++;
+		}
+		find();
+	}
+}
